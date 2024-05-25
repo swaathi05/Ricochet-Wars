@@ -144,3 +144,237 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+
+pauseButton.addEventListener('click', () => {
+    gamePaused = true;
+});
+
+resumeButton.addEventListener('click', () => {
+    gamePaused = false;
+});
+
+resetButton.addEventListener('click', () => {
+    clearInterval(timer);
+    timeLeft = 60;
+    timerDisplay.textContent = timeLeft;
+    gamePaused = false;
+    selectedCell = null;
+    board.innerHTML = '';
+    createBoard();
+    placeInitialPieces();
+    startTimer();
+});
+
+// game.js (continued)
+
+let moveHistory = [];
+let currentMoveIndex = -1;
+
+function saveMove(fromRow, fromCol, toRow, toCol, piece) {
+    moveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+    moveHistory.push({ fromRow, fromCol, toRow, toCol, piece });
+    currentMoveIndex++;
+}
+
+function undoMove() {
+    if (currentMoveIndex < 0) return;
+    const lastMove = moveHistory[currentMoveIndex];
+    movePiece(lastMove.toRow, lastMove.toCol, lastMove.fromRow, lastMove.fromCol);
+    currentMoveIndex--;
+}
+
+function redoMove() {
+    if (currentMoveIndex >= moveHistory.length - 1) return;
+    currentMoveIndex++;
+    const nextMove = moveHistory[currentMoveIndex];
+    movePiece(nextMove.fromRow, nextMove.fromCol, nextMove.toRow, nextMove.toCol);
+}
+
+// Bind undo and redo to keys or buttons
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'z') {
+        undoMove();
+    }
+    if (e.ctrlKey && e.key === 'y') {
+        redoMove();
+    }
+});
+
+// game.js (continued)
+
+function movePiece(fromRow, fromCol, toRow, toCol) {
+    const fromCell = document.querySelector(`.cell[data-row="${fromRow}"][data-col="${fromCol}"]`);
+    const toCell = document.querySelector(`.cell[data-row="${toRow}"][data-col="${toCol}"]`);
+    const piece = fromCell.textContent;
+
+    if (isValidMove(piece, fromRow, fromCol, toRow, toCol)) {
+        toCell.textContent = piece;
+        fromCell.textContent = '';
+        saveMove(fromRow, fromCol, toRow, toCol, piece);
+    } else {
+        alert('Invalid move');
+    }
+}
+
+// game.js (continued)
+
+function shootBullet(fromRow, fromCol, direction) {
+    let col = fromCol;
+    while (col >= 0 && col < 8) {
+        const cell = document.querySelector(`.cell[data-row="${fromRow}"][data-col="${col}"]`);
+        if (cell.textContent) {
+            if (cell.textContent === pieces.SemiRicochet) {
+                // Handle semi ricochet destruction logic
+                cell.textContent = '';
+                alert('Semi Ricochet destroyed!');
+                break;
+            }
+            alert(`Hit ${cell.textContent}`);
+            break;
+        }
+        col += (direction === 'left' ? -1 : 1);
+    }
+}
+
+// game.js (continued)
+
+function storeMoveHistory() {
+    localStorage.setItem('moveHistory', JSON.stringify(moveHistory));
+}
+
+function loadMoveHistory() {
+    const storedHistory = localStorage.getItem('moveHistory');
+    if (storedHistory) {
+        moveHistory = JSON.parse(storedHistory);
+        currentMoveIndex = moveHistory.length - 1;
+    }
+}
+
+// Call storeMoveHistory after each move
+function saveMove(fromRow, fromCol, toRow, toCol, piece) {
+    moveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+    moveHistory.push({ fromRow, fromCol, toRow, toCol, piece });
+    currentMoveIndex++;
+    storeMoveHistory();
+}
+
+// Load move history on game start
+document.addEventListener('DOMContentLoaded', () => {
+    loadMoveHistory();
+    createBoard();
+    placeInitialPieces();
+    startTimer();
+});
+
+// game.js (continued)
+
+function displayMoveHistory() {
+    const historyDiv = document.getElementById('move-history');
+    historyDiv.innerHTML = '';
+    moveHistory.forEach((move, index) => {
+        const moveElement = document.createElement('div');
+        moveElement.textContent = `Move ${index + 1}: ${move.piece} from (${move.fromRow}, ${move.fromCol}) to (${move.toRow}, ${move.toCol})`;
+        historyDiv.appendChild(moveElement);
+    });
+}
+
+// Update displayMoveHistory after each move
+function saveMove(fromRow, fromCol, toRow, toCol, piece) {
+    moveHistory = moveHistory.slice(0, currentMoveIndex + 1);
+    moveHistory.push({ fromRow, fromCol, toRow, toCol, piece });
+    currentMoveIndex++;
+    storeMoveHistory();
+    displayMoveHistory();
+}
+
+// Initial call to display history on game load
+document.addEventListener('DOMContentLoaded', () => {
+    loadMoveHistory();
+    createBoard();
+    placeInitialPieces();
+    startTimer();
+    displayMoveHistory();
+});
+
+// game.js (continued)
+
+function movePiece(fromRow, fromCol, toRow, toCol) {
+    const fromCell = document.querySelector(`.cell[data-row="${fromRow}"][data-col="${fromCol}"]`);
+    const toCell = document.querySelector(`.cell[data-row="${toRow}"][data-col="${toCol}"]`);
+    const piece = fromCell.textContent;
+
+    if (isValidMove(piece, fromRow, fromCol, toRow, toCol)) {
+        fromCell.classList.add('moving');
+        setTimeout(() => {
+            toCell.textContent = piece;
+            fromCell.textContent = '';
+            fromCell.classList.remove('moving');
+            saveMove(fromRow, fromCol, toRow, toCol, piece);
+        }, 300);
+    } else {
+        alert('Invalid move');
+    }
+}
+
+// game.js (continued)
+
+function botMove() {
+    // Placeholder for bot move logic
+    // Implement simple AI to make moves
+    // For now, just make a random valid move
+    const validMoves = [];
+    document.querySelectorAll('.cell').forEach(cell => {
+        if (cell.textContent && cell.textContent !== pieces.Cannon) {
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    const newRow = row + i;
+                    const newCol = col + j;
+                    if (isValidMove(cell.textContent, row, col, newRow, newCol)) {
+                        validMoves.push({ fromRow: row, fromCol: col, toRow: newRow, toCol: newCol });
+                    }
+                }
+            }
+        }
+    });
+
+    if (validMoves.length > 0) {
+        const move = validMoves[Math.floor(Math.random() * validMoves.length)];
+        movePiece(move.fromRow, move.fromCol, move.toRow, move.toCol);
+    }
+}
+
+// Call botMove at intervals or based on player's move
+function playerMove(fromRow, fromCol, toRow, toCol) {
+    movePiece(fromRow, fromCol, toRow, toCol);
+    setTimeout(botMove, 1000);
+}
+
+
+const spells = {
+    passThrough: 'P'
+};
+
+function castSpell(spell, row, col) {
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    if (cell && cell.textContent) {
+        // Example spell: passThrough
+        if (spell === spells.passThrough) {
+            cell.dataset.passThrough = 'true';
+            setTimeout(() => {
+                delete cell.dataset.passThrough;
+            }, 3000); // Spell lasts for 3 seconds
+        }
+    }
+}
+
+// Bind spell casting to keys or buttons
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'p') {
+        const cell = selectedCell;
+        if (cell) {
+            castSpell(spells.passThrough, parseInt(cell.dataset.row), parseInt(cell.dataset.col));
+        }
+    }
+});
