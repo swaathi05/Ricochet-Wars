@@ -43,3 +43,29 @@ button {
     padding: 10px;
     font-size: 16px;
 }
+
+<!-- Media Queries --!>
+
+/* styles.css (continued) */
+
+@media (max-width: 600px) {
+    #board {
+        grid-template-columns: repeat(8, 30px);
+        grid-template-rows: repeat(8, 30px);
+    }
+
+    .cell {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    #timer {
+        font-size: 14px;
+    }
+}
