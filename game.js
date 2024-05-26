@@ -71,11 +71,19 @@ const initialPositions = {
 };
 
 // Place initial pieces on the board
-function placeInitialPieces() {
-    for (let row in initialPositions) {
-        for (let col in initialPositions[row]) {
+for (const row in initialPositions) {
+    for (const col in initialPositions[row]) {
+        const piece = initialPositions[row][col];
+        // Ensure that row and col are within the 8x8 grid
+        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
             const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-            cell.textContent = initialPositions[row][col];
+            if (cell) {
+                cell.textContent = piece;
+            } else {
+                console.error(`Cell at row ${row}, col ${col} not found`);
+            }
+        } else {
+            console.error(`Invalid position: row ${row}, col ${col}`);
         }
     }
 }
