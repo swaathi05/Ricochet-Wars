@@ -1,9 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    loadMoveHistory();
+    createBoard();
+    placeInitialPieces();
+    startTimer();
+    displayMoveHistory();
+    
     const board = document.getElementById('board');
     const timerDisplay = document.getElementById('time');
     const pauseButton = document.getElementById('pause');
     const resumeButton = document.getElementById('resume');
     const resetButton = document.getElementById('reset');
+    const replayButton = document.getElementById('replay');
     
     let timer;
     let timeLeft = 60;
@@ -41,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     resumeButton.addEventListener('click', () => {
-        gamePaused = false;
+        if(gamePaused)
+            gamePaused = false;
+            startTimer();
     });
 
     resetButton.addEventListener('click', () => {
@@ -50,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
         timerDisplay.textContent = timeLeft;
         startTimer();
     });
+
+    replayButton.addEventListener('click', replayGame);
 
     createBoard();
     startTimer();
