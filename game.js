@@ -71,19 +71,27 @@ const initialPositions = {
 };
 
 // Place initial pieces on the board
-for (const row in initialPositions) {
-    for (const col in initialPositions[row]) {
-        const piece = initialPositions[row][col];
-        // Ensure that row and col are within the 8x8 grid
-        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-            const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
-            if (cell) {
-                cell.textContent = piece;
+function placeInitialPieces() {
+    // Example initial configuration, you can adjust this based on your game rules
+    const initialPositions = {
+        0: { 0: pieces.Titan, 1: pieces.Tank, 2: pieces.Ricochet, 3: pieces.SemiRicochet, 4: pieces.Cannon },
+        7: { 7: pieces.Titan, 6: pieces.Tank, 5: pieces.Ricochet, 4: pieces.SemiRicochet, 3: pieces.Cannon }
+    };
+
+    for (const row in initialPositions) {
+        for (const col in initialPositions[row]) {
+            const piece = initialPositions[row][col];
+            // Ensure that row and col are within the 8x8 grid
+            if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell) {
+                    cell.textContent = piece;
+                } else {
+                    console.error(`Cell at row ${row}, col ${col} not found`);
+                }
             } else {
-                console.error(`Cell at row ${row}, col ${col} not found`);
+                console.error(`Invalid position: row ${row}, col ${col}`);
             }
-        } else {
-            console.error(`Invalid position: row ${row}, col ${col}`);
         }
     }
 }
