@@ -1,9 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    loadMoveHistory();
-    createBoard();
-    placeInitialPieces();
-    startTimer();
-    displayMoveHistory();
     
     const board = document.getElementById('board');
     const timerDisplay = document.getElementById('time');
